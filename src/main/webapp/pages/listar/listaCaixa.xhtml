@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:fp="http://xmlns.jcp.org/jsf/core"
+       >
+       
+       <f:metadata>
+         <f:viewAction action="#{caixaBean.listar}"></f:viewAction>
+      </f:metadata>
+       
+       
+     <h:head>
+      <h:outputStylesheet library="css" name="style.css"/>
+      
+      <script>
+      function somenteNumeros(num) {
+        var er = /[^0-9.]/;
+        er.lastIndex = 0;
+        var campo = num;
+        if (er.test(campo.value)) {
+          campo.value = "";
+        }
+      }
+     </script>
+      
+      
+      
+     <title>Caixas Cadastrados</title> 
+     </h:head>  
+      
+      
+    <h:body>
+     
+    
+    
+     <p:growl id="mensagem"/>
+     <p:layout fullPage="true">
+
+    <p:layoutUnit position="north" size="50" header="Lista de Caixas Cadastrados no Sistema" resizable="true" closable="true" collapsible="true">
+       
+    </p:layoutUnit>
+ 
+    <p:layoutUnit position="west" size="200" header="Menu Inicial" resizable="true" closable="true" collapsible="true">
+        <h:form>
+
+                <p:panelMenu
+                     >
+                    <p:submenu label="Opções" style="font-size:14px ;
+                         font-weight:bold ; font-style: italic;">
+                        <p:menuitem value="Página Principal" 
+                          action="#{usuarioBean.inicialPage}"
+                          style="font-size:14px ;
+                         font-weight:bold ; font-style: italic;"
+                          />
+                        
+                    </p:submenu>
+                     <p:submenu label="Caixa" style="font-size:14px ;
+                         font-weight:bold ; font-style: italic;">
+                        <p:menuitem value="Novo Caixa" oncomplete="PF('cadastroCaixaDL').show()"
+                        rendered="#{autenticacaoBean.userLogin.perfil=='ADMINISTRADOR'||autenticacaoBean.userLogin.perfil=='PADRAO'}"
+                        style="font-size:14px ;
+                         font-weight:bold ; font-style: italic;"/>
+                          <p:menuitem icon="fa fa-print" value="Relatório Caixas"
+                          rendered="#{autenticacaoBean.userLogin.perfil=='ADMINISTRADOR'||autenticacaoBean.userLogin.perfil=='PADRAO'}"
+                         action="#{caixaBean.imprimir}"
+                         target="_blank"
+                         style="font-size:14px ;
+                         font-weight:bold ; font-style: italic;"
+                         ajax="false"/>
+                    </p:submenu>
+                   </p:panelMenu>
+             </h:form>
+    </p:layoutUnit>
+ 
+
+    <p:layoutUnit position="center">
+    <h:form id="formCaixas">
+    <p:dataTable  id="tabCaixas" var="caixas" value="#{caixaBean.caixas}"  rows="14"
+                 paginator="true"
+                 editable="true" 
+                 rowsPerPageTemplate="5,10,15"
+                 rendered="true"
+                 emptyMessage="Nenhum Caixa Cadastrado">
+        <f:facet name="header">
+             <p:row style="background-color:#000000;" >
+             <p:column colspan="7" > Lista de Caixas </p:column>
+            </p:row>
+         </f:facet>         
+        <p:column headerText="Id" width="7%">
+            <h:outputText value="#{caixas.codigo}" />
+        </p:column>
+ 
+        <p:column headerText="Numero" width="10%">
+            <h:outputText value="#{caixas.codNumero}" />
+        </p:column>
+ 
+        <p:column headerText="Descrição">
+            <h:outputText value="#{caixas.descricao}" />
+        </p:column>
+  
+         <p:column headerText="Saldo" width="15%">
+            <h:outputText value="#{caixas.saldo}" >
+            <f:convertNumber locale="pt_BR" minFractionDigits="2"/>
+            </h:outputText>
+        </p:column>
+        
+        <p:column headerText="Histórico">
+            <h:outputText value="#{caixas.historico}" />
+        </p:column>
+         
+       <f:facet name="paginatorTopLeft">
+            <p:commandButton type="button" icon="pi pi-refresh" />
+       </f:facet>
+     <f:facet name="paginatorBottomRight">
+            <p:commandButton type="button" icon="pi pi-cloud-upload" />
+        </f:facet>
+     </p:dataTable>
+    <br />
+    <br/>
+    </h:form>
+    </p:layoutUnit>
+ </p:layout>
+ 
+   <p:dialog header="Cadastro de Caixa" closable="true" draggable="false"
+      modal="true" visible="false" widgetVar="cadastroCaixaDL">
+       <h:form id="formServDL">
+          <h:panelGrid columns="9">
+          <p:outputLabel for="desc" value="Descrição: " />
+          <p:spacer width="2" height="2" />
+            <p:inputText id="desc" value="#{caixaBean.caixa.descricao}" required="true"
+            size="35" placeholder="Descrição" requiredMessage="Descrição é obrigatório"/> 
+          <p:outputLabel for="val" value="Saldo: " />
+          <p:spacer width="2" height="2" />
+            <p:inputText mask=" "  id="val" value="#{caixaBean.caixa.saldo}" required="true"
+            size="10" placeholder="R$:0,00" requiredMessage="O saldo obrigatório" onkeyup="somenteNumeros(this);"/> 
+            <p:spacer width="2" height="2" />
+            <p:outputLabel  value="Nro: " />
+            <p:inputText   value="#{caixaBean.caixa.codNumero}" onkeyup="somenteNumeros(this);"/>
+            </h:panelGrid>
+            <br/>
+            <h:panelGrid columns="7">
+            
+            <p:outputLabel  value="Histórico: " />
+            <p:spacer width="31" height="30" />
+            <p:inputText id="obs" value="#{caixaBean.caixa.historico}" 
+            size="86" placeholder="Informar histórico do caixa" /> 
+            
+           </h:panelGrid>
+         <br/>
+         <h:panelGrid columns="2">							
+        <p:commandButton value="Salvar"  
+         actionListener="#{caixaBean.salvar}"
+         update="mensagem :formCaixas:tabCaixas"  
+        style="margin-right:5px;"
+        ajax="false"
+          />
+        <p:commandButton value="Sair" 
+	    style="margin-right:5px;"
+        onclick="PF('cadastroCaixaDL').hide()"  />																		
+        </h:panelGrid>
+      </h:form>
+     </p:dialog>
+     
+     
+ </h:body> 
+</html>

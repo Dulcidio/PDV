@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:fp="http://xmlns.jcp.org/jsf/core"
+       >
+       
+       <f:metadata>
+         <f:viewAction action="#{lancamentosCaixa.listar}"></f:viewAction>
+         <f:viewAction action="#{caixaBean.listar}"></f:viewAction>
+      </f:metadata>
+       
+       
+     <h:head>
+      <h:outputStylesheet library="css" name="style.css"/>
+      
+      <style type="text/css">
+        .saida {
+        background-color:  #ff1a1a !important;
+        background-image: none !important;
+        color: #ffffff !important;
+           }
+      </style>
+       <style type="text/css">
+        .entrada {
+        background-color:  #4dff4d !important;
+        background-image: none !important;
+        color: #000000 !important;
+           }
+      </style>
+      
+      <script>
+      function somenteNumeros(num) {
+        var er = /[^0-9.]/;
+        er.lastIndex = 0;
+        var campo = num;
+        if (er.test(campo.value)) {
+          campo.value = "";
+        }
+      }
+     </script>
+      
+     <title>Lançamentos Registrados</title> 
+      
+     
+     
+      </h:head>  
+      
+      
+    <h:body>
+     
+    
+    
+     <p:growl id="mensagem"/>
+     <p:layout fullPage="true">
+
+    <p:layoutUnit position="north" size="200" header="Lista de Lançamentos Registrados no Sistema" resizable="true" closable="true" collapsible="true">
+       <h:panelGrid id="grid1" columns="10" cellpadding="2" >
+       <p:spacer width="10" height="20" />
+       <h:outputText  value="Imprimir lançamentos por intervalo de datas: " />
+       </h:panelGrid>
+      
+       <h:panelGrid id="grid2" columns="10" cellpadding="2" >
+       <h:form>
+       <p:spacer width="15" height="20" />
+        <h:outputText  value="Inicio: " />
+       <p:calendar id="inicioData" value="#{lancamentosCaixa.inicioData}" size="27" 
+             showOn="button" />
+             
+        <h:outputText  value="Final: " />
+       <p:calendar id="finalData" value="#{lancamentosCaixa.finalDate}" size="27" 
+             showOn="button" />       
+       <p:commandButton value="Imprimir" 
+       rendered="#{autenticacaoBean.userLogin.perfil=='ADMINISTRADOR'||autenticacaoBean.userLogin.perfil=='PADRAO'}"
+       icon="fa fa-print" 
+       action="#{lancamentosCaixa.imprimirIntervalo()}"
+       onclick="this.form.target='_blank'" 
+       ajax="false" 
+       ></p:commandButton>      
+       </h:form>
+      </h:panelGrid>
+      <hr></hr>
+        
+       <h:panelGrid id="grid4" columns="10" cellpadding="2" >
+       <p:spacer width="10" height="10" />
+       <h:form>
+       <h:outputText  value="Informe a data: " />
+        <p:calendar id="infoData" value="#{lancamentosCaixa.lancamento.data}" size="27" 
+             showOn="button" >       
+        </p:calendar>     
+       <p:commandButton value="Imprimir" icon="fa fa-print" 
+       rendered="#{autenticacaoBean.userLogin.perfil=='ADMINISTRADOR'||autenticacaoBean.userLogin.perfil=='PADRAO'}"
+       action="#{lancamentosCaixa.imprimirData}"
+       onclick="this.form.target='_blank'" 
+       ajax="false" 
+       >
+       </p:commandButton>  
+       
+        
+       </h:form>
+       </h:panelGrid>
+      
+       
+    </p:layoutUnit>
+ 
+
+    <p:layoutUnit position="west" size="200" header="Menu Inicial" resizable="true" closable="true" collapsible="true">
+        <h:form>
+
+                <p:panelMenu
+                     >
+                    <p:submenu label="Opções" style="font-size:14px ;
+                         font-weight:bold ; font-style: italic;">
+                        <p:menuitem value="Página Principal" 
+                          action="#{usuarioBean.inicialPage}"
+                          style="font-size:14px ;
+                         font-weight:bold ; font-style: italic;"
+                          />
+                        
+                    </p:submenu>
+                    <p:submenu label="Lançamentos"  style="font-size:14px ;
+                         font-weight:bold ; font-style: italic;">
+                        <p:menuitem value="Novo Lançamento" oncomplete="PF('cadastroCatDL').show()"
+                        rendered="#{autenticacaoBean.userLogin.perfil=='ADMINISTRADOR'||autenticacaoBean.userLogin.perfil=='PADRAO'}"
+                        style="font-size:14px ;
+                         font-weight:bold ; font-style: italic;"/>
+                         <p:menuitem icon="fa fa-print" value="Lista Completa" 
+                         rendered="#{autenticacaoBean.userLogin.perfil=='ADMINISTRADOR'||autenticacaoBean.userLogin.perfil=='PADRAO'}"
+                         action="#{lancamentosCaixa.imprimirGeral}"
+                         target="_blank"
+                         style="font-size:14px ;
+                         font-weight:bold ; font-style: italic;"
+                         ajax="false"/>
+                         <p:menuitem icon="fa fa-print" value="Relatório por caixa" 
+                         rendered="#{autenticacaoBean.userLogin.perfil=='ADMINISTRADOR'||autenticacaoBean.userLogin.perfil=='PADRAO'}"
+                         oncomplete="PF('imprimirPorCaixaDL').show()"
+                         style="font-size:14px ;
+                         font-weight:bold ; font-style: italic;"
+                         />
+                   </p:submenu>
+                  </p:panelMenu>
+             </h:form>
+    </p:layoutUnit>
+ 
+
+    <p:layoutUnit position="center">
+    <h:form id="formLancamentos">
+    <p:dataTable  id="tabLancamentos" var="lanca" value="#{lancamentosCaixa.lancamentos}"  rows="14"
+                 paginator="true"
+                 editable="true" 
+                 rowsPerPageTemplate="5,10,15"
+                 rowStyleClass="#{lanca.tipo eq  'Saída' ? 'saida' : null || lanca.tipo eq  'Entrada' ? 'entrada' : null }"
+                 rendered="true"
+                  widgetVar="carsTable"
+                 emptyMessage="Nenhum lançaemento registrado">
+        <f:facet name="header">
+             <p:row style="background-color:#000000;" >
+             <p:column colspan="7" > Listagem de Lançamentos Executados </p:column>
+            </p:row>
+         </f:facet>         
+        <p:column headerText="Id" width="7%">
+            <h:outputText value="#{lanca.codigo}" />
+        </p:column>
+ 
+        <p:column width="10%"  
+        filterBy="#{lanca.caixa.descricao}" filterMatchMode="contains">
+            <h:outputText value="#{lanca.caixa.descricao}" />
+        </p:column>
+ 
+        <p:column   filterBy="#{lanca.tipo}"   filterMatchMode="exact">
+            <f:facet name="filter">
+                <p:selectOneMenu  onchange="PF('carsTable').filter()" styleClass="custom-filter" >
+                    <f:selectItem itemLabel="Escolha um tipo" itemValue="#{null}" noSelectionOption="true"  />
+                    <f:selectItem itemLabel="Entrada" itemValue="Entrada" />
+				    <f:selectItem itemLabel="Saída" itemValue="Saída" />
+                </p:selectOneMenu>
+            </f:facet>
+            <h:outputText value="#{lanca.tipo}" />
+        </p:column>
+  
+         <p:column headerText="Valor" width="15%">
+            <h:outputText value="#{lanca.valor}" >
+            <f:convertNumber locale="pt_BR" minFractionDigits="2"/>
+            </h:outputText>
+        </p:column>
+        
+        <p:column headerText="Histórico">
+            <h:outputText value="#{lanca.historicoLancamento}" />
+        </p:column>
+        
+        
+        <p:column headerText="Data">
+            <h:outputText value="#{lanca.data}" >
+            <f:convertDateTime locale="pt_BR"/>
+            </h:outputText>
+        </p:column>
+        
+         <p:column headerText="Forma">
+            <h:outputText value="#{lanca.formapgto}" />
+        </p:column>
+        
+       <f:facet name="paginatorTopLeft">
+            <p:commandButton type="button" icon="pi pi-refresh" />
+       </f:facet>
+     <f:facet name="paginatorBottomRight">
+            <p:commandButton type="button" icon="pi pi-cloud-upload" />
+        </f:facet>
+     </p:dataTable>
+    <br />
+    <br/>
+    </h:form>
+    </p:layoutUnit>
+ </p:layout>
+  
+     
+      <p:dialog header="Lançamento" closable="true" draggable="false"
+      modal="true" visible="false" widgetVar="cadastroCatDL">
+       <h:form id="formCatDL">
+          <h:panelGrid columns="3">
+           <p:outputLabel value="Caixa: " />
+           <p:spacer width="30" height="30" />
+           <p:selectOneMenu value="#{lancamentosCaixa.lancamento.caixa}" style="width:320px"
+								converter="omnifaces.SelectItemsConverter"
+								required="true" requiredMessage="O campo 'Caixa' é obrigatório" >
+								<f:selectItem noSelectionOption="true" itemValue="#{caixaBean.caixa}" 
+								itemLabel="#{caixaBean.caixa.descricao}"/>
+								<f:selectItems value="#{caixaBean.caixas}" var="cat" 
+								itemValue="#{cat}" itemLabel="#{cat.descricao}"
+								/>
+             </p:selectOneMenu>
+             <p:outputLabel value="Tipo: " />
+            <p:spacer width="30" height="30" />
+             <p:selectOneMenu value="#{lancamentosCaixa.lancamento.tipo}" style="width:320px"
+								converter="omnifaces.SelectItemsConverter"
+								required="true" requiredMessage="O campo 'Tipo' é obrigatório" >
+								 <f:selectItem itemLabel="Escolha o tipo do lançamento" itemValue="" />
+								 <f:selectItem itemLabel="Entrada" itemValue="Entrada" />
+								 <f:selectItem itemLabel="Saída" itemValue="Saída" />
+								 
+             </p:selectOneMenu>
+             </h:panelGrid>
+             <h:panelGrid columns="5">
+             <p:outputLabel   value="Valor: " />
+             <p:spacer width="33" height="33" />
+             <p:inputText   value="#{lancamentosCaixa.lancamento.valor}" required="true"
+             size="31" placeholder="R$ 9,99" requiredMessage="O valor é obrigatório"
+             maxlength="8" onkeyup="somenteNumeros(this);"
+             validatorMessage="Informe um valor entre 0.01 e 99999.99 para o campo preço" > 
+              <f:validateDoubleRange minimum="0.01" maximum="99999.99"></f:validateDoubleRange>
+               <f:convertNumber locale="pt_BR" minFractionDigits="2"></f:convertNumber>
+               </p:inputText> 
+             </h:panelGrid>
+            
+             <h:panelGrid columns="5">
+             <p:outputLabel   value="Histórico: " />
+             <p:spacer width="1" height="1" />
+             <p:inputText value="#{lancamentosCaixa.lancamento.historicoLancamento}" required="true"
+              size="31" placeholder="Descrição" requiredMessage="Descrição é obrigatório"/> 
+            </h:panelGrid>
+             
+             <h:panelGrid columns="7">
+             <p:outputLabel   value="Data: " />
+             <p:spacer width="37" height="37" />
+             <p:calendar id="buttonAdmissao" value="#{lancamentosCaixa.lancamento.data}" size="27" 
+             showOn="button" required="true" 
+             requiredMessage="A data não pode ficar em branco"/>
+             </h:panelGrid>
+            <h:panelGrid columns="7">
+            <p:outputLabel  value="Tipo: " />
+            <p:spacer width="42" height="42" />
+            <p:selectOneMenu value="#{lancamentosCaixa.lancamento.formapgto}" style="width:320px"
+								converter="omnifaces.SelectItemsConverter"
+								required="true" requiredMessage="O campo 'Tipo' é obrigatório" >
+								 <f:selectItem itemLabel="Escolha a forma do lançamento" itemValue="" />
+								 <f:selectItem itemLabel="Dinheiro" itemValue="Dinheiro" />
+								 <f:selectItem itemLabel="Cartão débito" itemValue="Cartão débito" />
+								 <f:selectItem itemLabel="Cartão crédito" itemValue="Cartão crédito" />
+								 <f:selectItem itemLabel="Deposito" itemValue="Deposito" />
+								 <f:selectItem itemLabel="Transferência bancária" itemValue="Transferência bancária" />
+								 <f:selectItem itemLabel="Boleto" itemValue="Boleto" />
+								 <f:selectItem itemLabel="Promissória" itemValue="Promissória" />
+             </p:selectOneMenu>
+              </h:panelGrid>
+         <br/>
+         <h:panelGrid columns="2">							
+        <p:commandButton value="Salvar"  
+         actionListener="#{lancamentosCaixa.salvar}"
+         update="mensagem :formLancamentos:tabLancamentos"  
+        style="margin-right:5px;"
+        ajax="false"
+          />
+        <p:commandButton value="Sair" 
+	    style="margin-right:5px;"
+        onclick="PF('cadastroCatDL').hide()" />																		
+        </h:panelGrid>
+      </h:form>
+     </p:dialog>
+     
+      <p:dialog header="Imprimir por caixa" closable="true" draggable="false"
+          modal="true" visible="false" widgetVar="imprimirPorCaixaDL">
+          <h:form id="formPrintCaixaDL">
+          <h:panelGrid columns="3">
+           <p:outputLabel value="Caixa: " />
+           
+           <p:selectOneMenu value="#{lancamentosCaixa.lancamento.caixa}" style="width:320px"
+								converter="omnifaces.SelectItemsConverter"
+								required="true" requiredMessage="O campo 'Caixa' é obrigatório" >
+								<f:selectItem noSelectionOption="true" itemValue="#{caixaBean.caixa}" 
+								itemLabel="#{caixaBean.caixa.descricao}"/>
+								<f:selectItems value="#{caixaBean.caixas}" var="cat" 
+								itemValue="#{cat}" itemLabel="#{cat.descricao}"
+								/>
+             </p:selectOneMenu>
+             
+         <p:commandButton value="Imprimir"  
+         actionListener="#{lancamentosCaixa.imprimirPorCaixa}"
+         style="margin-right:5px;"
+         onclick="this.form.target='_blank'" 
+         ajax="false"
+          />
+         </h:panelGrid>
+       
+        <p:spacer width="425" height="30" />  
+        <p:commandButton value="Sair" 
+	    style="margin-right:5px;"
+        onclick="PF('imprimirPorCaixaDL').hide()" />	
+          
+           </h:form>
+     </p:dialog>
+     
+ </h:body> 
+</html>

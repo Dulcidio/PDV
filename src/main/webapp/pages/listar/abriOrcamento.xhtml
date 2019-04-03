@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:fp="http://xmlns.jcp.org/jsf/core"
+       >
+       <f:metadata>
+         <f:viewAction action="#{orcamentoBean.detalhesOrcamento}"></f:viewAction>
+         <f:viewAction action="#{caixaBean.listar}"></f:viewAction>
+          <f:viewAction action="#{autenticacaoBean.nome}"></f:viewAction> 
+     </f:metadata>  
+     <h:head>
+      <h:outputStylesheet library="css" name="style.css"/>
+      
+     <style type="text/css">
+        .servico {
+        background-color:  #75a3a3 !important;
+        background-image: none !important;
+        color: #ffffff !important;
+           }
+      </style>
+       <style type="text/css">
+        .produto {
+        background-color: #ffffff !important;
+        background-image: none !important;
+        color: #000000 !important;
+           }
+      </style>
+      
+       <script>
+      function somenteNumeros(num) {
+        var er = /[^0-9.]/;
+        er.lastIndex = 0;
+        var campo = num;
+        if (er.test(campo.value)) {
+          campo.value = "";
+        }
+      }
+     </script>
+     
+     <script>
+      
+     var x = 5;
+     var y = 2;
+     var z = x % y;
+     document.getElementById("resto")= z;
+     </script>
+     
+     
+ 
+      
+      <style>
+       hr { 
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-left: auto;
+  margin-right: auto;
+  border-style: inset;
+  border-width: 1px;
+   
+} 
+</style>
+<!--  
+<script type="text/javascript">
+function start() {
+    PF('startButton1').disable();
+     
+    window['progress'] = setInterval(function() {
+var pbClient = PF('pbClient'),
+oldValue = pbClient.getValue(),
+newValue = oldValue + 10;
+         
+pbClient.setValue(pbClient.getValue() + 10);
+     
+if(newValue === 100) {
+    clearInterval(window['progress']);
+}
+ 
+ 
+    }, 100);
+}
+ 
+function cancel() {
+    clearInterval(window['progress']);
+    PF('pbClient').setValue(0);
+    PF('startButton1').enable();
+} 
+</script>-->
+
+<link rel='alternate' media='print' href=''></link>
+<script type="text/javascript">
+function pegarArquivo( ) {
+    if(arquivoSelecionado.files){
+    	var file = new File([""], "cupons.txt", {type: "text/plain", lastModified: date})
+    	window.print()
+                   }   
+                                          }
+
+</script>
+
+      <h:form>
+      <p:hotkey bind="F2" handler="PF('adicionarProdutosDL').show();"/>
+      
+      </h:form>
+     <title>PDV</title> 
+      </h:head>  
+   
+      
+    <h:body>
+     
+    
+    
+     <p:growl id="mensagem"/>
+    
+     <p:layout fullPage="true" id="orcaLay">
+     
+    <p:layoutUnit position="north" size="110" header="PDV" resizable="true" closable="true" collapsible="true"
+    
+     >
+       
+       <h:form id="formSuper">
+         
+       
+       <h:panelGrid id="grid2"  columns="10" cellpadding="2">
+       </h:panelGrid>
+        <h:panelGrid id="gridForm3" columns="4" cellpadding="2"  > 
+       
+       <p:inputText value="#{orcamentoBean.produtoB.barras}" size="50"
+            style="color:#000000; background:#d1e0e0;font-size:24px "></p:inputText>  
+             <h:commandButton actionListener="#{orcamentoBean.adicionarProdutoBarras}" 
+             style="height:-1px;width:-1px;color:#ffffff; background:#ffffff;border: none"
+             >
+            <f:actionListener type="org.omnifaces.eventlistener.ResetInputAjaxActionListener"/>
+            </h:commandButton>  
+        <!-- 
+        <p:commandButton  value="Adicionar Produtos" 
+        id="add"
+        update=":mensagem :formSuper:grid2"
+        onclick="PF('adicionarProdutosDL').show()"
+        style="height:30px;width:250px; text-align:center;position: relative;left: 60px; color:#ffffff; background:#006699" 
+        icon="fa fa-dropbox"> 
+        </p:commandButton> -->
+        <p:outputLabel value="Caixa Operador: #{autenticacaoBean.nomeOPerador}" id="nomeFunc"
+        style=" position: relative;left: 350px; font-size:24px ; font-weight:bold " />
+       </h:panelGrid>
+       </h:form>
+    </p:layoutUnit>
+      
+
+   
+    <p:layoutUnit position="east" size="485" header="Detalhes da Venda" resizable="false" closable="false" collapsible="false" effect="drop">
+         <h:form id="formValores">
+         <h:panelGrid id="painelValores" columns="2" cellpadding="3"  >
+           <h:outputText value="Valor Total R$:  " />
+           <h:outputText id="valor1" value="#{orcamentoBean.orcamento.valorTotal}" 
+           style="font-size:48px ; font-weight:bold "   >
+            <f:convertNumber locale="pt_BR" minFractionDigits="2"/>
+           </h:outputText>
+           </h:panelGrid>
+         <hr/>
+          <h:panelGrid id="painelPago" columns="2" cellpadding="3"  >
+            <p:outputLabel value="Valor Pago: " />
+            <p:inputText id="valorPago"  value="#{orcamentoBean.pago}" size="10"  
+            placeholder="0,00" onkeyup="somenteNumeros(this);"
+            disabled="veri" validatorMessage="Informe um valor entre 0.01 e 99999.99 para o campo pgto"
+            required="true" requiredMessage="O campo 'valor pago' não pode ficar em branco">
+            <f:validateDoubleRange minimum="0.01" maximum="99999.99"></f:validateDoubleRange>
+               <f:convertNumber locale="pt_BR" minFractionDigits="2"></f:convertNumber>
+            <p:ajax event="change"   listener="#{orcamentoBean.troco}" update=":formValores:painelPago :formValores:painelTroco  "/>
+          </p:inputText> 
+         </h:panelGrid>
+         
+         <hr/>
+         
+         <h:panelGrid id="painelTroco" columns="3" cellpadding="2"  >
+          <p:outputLabel value="Troco:"/>
+          <p:spacer width="40" height="10" />
+            <p:inputText id="valorTroco"  value="#{orcamentoBean.troco}" size="10"  
+            placeholder="0,00" onkeyup="somenteNumeros(this);"
+            disabled="veri" readonly="true" style="font-weight:bold ; color:#000000 ; background:#ffffff" >
+            
+         </p:inputText> 
+          </h:panelGrid>
+         
+         <hr/>
+          
+          <h:panelGrid id="painelCaixa"  columns="3" cellpadding="2"  >
+            <p:outputLabel value="Caixa: " />
+             <p:spacer width="40" height="10" />
+           <p:selectOneMenu value="#{orcamentoBean.orcamento.caixa}" style="width:320px"
+								converter="omnifaces.SelectItemsConverter"
+								required="true" requiredMessage="O campo 'Caixa' é obrigatório" >
+								<f:selectItem noSelectionOption="true" itemValue="#{caixaBean.caixa}" 
+								itemLabel="Selecione o Caixa"/>
+								<f:selectItems value="#{caixaBean.caixas}" var="cat" 
+								itemValue="#{cat}" itemLabel="#{cat.descricao}"
+								/>
+             </p:selectOneMenu>
+         </h:panelGrid>
+         
+         <hr/>
+          
+          <h:panelGrid id="painelForma"  columns="3" cellpadding="2"  >
+            <p:outputLabel  value="Pgto em: " />
+            <p:spacer width="18" height="18" />
+            <p:selectOneMenu value="#{orcamentoBean.forma}" immediate="true" style="width:320px"
+								converter="omnifaces.SelectItemsConverter"
+								required="true" requiredMessage="O campo 'Forma' é obrigatório" >
+								 <f:selectItem itemLabel="Escolha a forma de pagamento" itemValue="" />
+								 <f:selectItems value="#{orcamentoBean.formas}"  />
+             </p:selectOneMenu>
+         </h:panelGrid>
+         
+         <hr/>
+          
+          <h:panelGrid id="painelUsuario2"  columns="3" cellpadding="2"  >
+          <h:outputText value="Data: #{orcamentoBean.dataForm}" style="font-weight:bold">
+           <f:convertDateTime pattern="dd/MM/yyyy HH:mm"  locale="pt_BR"/>
+          </h:outputText>
+          
+         </h:panelGrid>
+          
+          <hr/>
+         <h:panelGrid  id="gridForm3" columns="9" cellpadding="2"  >
+         
+         
+         <p:commandButton value="Finalizar" 
+         icon="fa fa-check-square" 
+         style="height:30px;width:150px; text-align:center;position: relative; color:#ffffff; background:#00e600"
+         update="mensagem :formCentral:tabItensServicos :formValores:painelValores formValores:painelForma"  
+         action="#{orcamentoBean.salvar}" 
+          >
+        
+         <f:actionListener type="org.omnifaces.eventlistener.ResetInputAjaxActionListener"/>
+         </p:commandButton>
+         
+         
+         <p:commandButton value="PDF" icon="fa fa-print" 
+         actionListener="#{orcamentoBean.imprimir}"
+         style="height:30px;width:150px; text-align:center;position: relative; color:#ffffff; background:#5c8a8a"
+         ajax="false"
+         onclick="this.form.target='_blank'" >
+         </p:commandButton>
+          </h:panelGrid>
+           </h:form>
+           
+         <h:panelGrid  id="gridForm4" columns="9" cellpadding="2"  >
+         <!--   <p:progressBar id="progressBarClient" widgetVar="pbClient" style="width:420px" /> -->
+          </h:panelGrid>
+         
+         <h:form>
+         <p:commandButton value="Sair" 
+         icon="fa fa-close"
+         style="height:30px;width:150px; text-align:center;position: relative; color:#ffffff; background:#ff1a1a "
+          action ="#{orcamentoBean.sairOrcamento}">
+         <f:actionListener type="org.omnifaces.eventlistener.ResetInputAjaxActionListener"/>
+         </p:commandButton>
+         </h:form>
+    </p:layoutUnit>
+
+    <p:layoutUnit position="center" header="Cesto de Compras" >
+            <h:form id="formCentral">
+       
+            <hr/> 
+        <p:dataTable  id="tabItensServicos" var="itens" value="#{orcamentoBean.servicosOrcamento}"  rows="14"
+                 paginator="true"
+                 editable="true" 
+                 rowsPerPageTemplate="5,10,15"
+                 rendered="true"
+                 rowStyleClass="#{itens.tipo eq  'Produto' ? 'produto' : null || itens.tipo eq  'Produto' ? 'servico' : null }"
+                 emptyMessage="nenhum produto adicionado ao cesto"
+                 >
+        <f:facet name="header">
+             <p:row style="background-color:#000000;" >
+             <p:column colspan="7" > Produtos adicionados ao cesto</p:column>
+            </p:row>
+         </f:facet>         
+         
+        <p:column headerText="Descricão">
+            <h:outputText value="#{itens.descricao}" />
+        </p:column>
+        <p:column headerText="Quantidade">
+            <h:outputText value="#{itens.quantidade}" />
+        </p:column>
+         <p:column headerText="Valor Parcial R$">
+            <h:outputText value="#{itens.valor}" >
+             <f:convertNumber locale="pt_BR" minFractionDigits="2"/>
+            </h:outputText>
+        </p:column>
+         <p:column headerText="Tipo">
+            <h:outputText value="#{itens.tipo}" />
+        </p:column>
+        <p:column headerText="Excluir" width="15%">
+          <p:commandButton icon="fa fa-trash" title="excluir" 
+           actionListener="#{orcamentoBean.remover}"
+           update=":formCentral:tabItensServicos :formValores:painelValores :formValores:painelPago :formValores:painelTroco"  
+           style="color:#ffffff; background:#ff0000">
+            <f:attribute  name="itemSelecionado" value="#{itens}"/>
+            </p:commandButton>
+         </p:column>
+       
+        </p:dataTable>
+        
+       </h:form>
+    </p:layoutUnit>
+      
+         <p:layoutUnit header="F2: Consultar Produtos" size="100"
+            position="south" resizable="false" closable="false"
+            collapsible="false">
+            
+        </p:layoutUnit>
+    
+ </p:layout>
+  
+   
+   <p:dialog header="Adicionar Produtos" closable="true" draggable="true"
+      modal="false" visible="false" widgetVar="adicionarProdutosDL">
+       <h:form id="formAddProdutosDL">
+           <h:form>
+        <p:dataTable var="produtos"  rows="10"
+                 value="#{produtoBean.produtos}"
+                 paginator="true"
+                 rowStyleClass="#{produtos.tipo eq  'Produto' ? 'produto' : null || produtos.tipo eq  'Servico' ? 'servico' : null }"
+                 rowsPerPageTemplate="5,10,15"
+                 style="font-size:14px ; font-weight:bold ">
+        <p:column headerText="Cod">
+            <h:outputText value="#{produtos.codigo}" style="font-size:12px ; font-weight:bold "/>
+        </p:column>
+ 
+        <p:column headerText="Descrição" filterBy="#{produtos.descricao}">
+            <h:outputText value="#{produtos.descricao}" style="font-size:12px ; font-weight:bold " />
+        </p:column>
+ 
+        <p:column headerText="Valor R$">
+            <h:outputText value="#{produtos.precoVista}" style="font-size:12px ; font-weight:bold ">
+             <f:convertNumber locale="pt_BR" minFractionDigits="2"/>
+            </h:outputText>
+        </p:column>
+        <p:column headerText="Cod Barras" filterBy="#{produtos.barras}">
+            <h:outputText value="#{produtos.barras}" style="font-size:12px ; font-weight:bold " />
+        </p:column>
+        <p:column headerText="Tipo">
+            <h:outputText value="#{produtos.tipo}" style="font-size:12px ; font-weight:bold " />
+        </p:column>
+        <p:column headerText="Referência" filterBy="#{produtos.referencia}">
+            <h:outputText value="#{produtos.referencia}" style="font-size:12px ; font-weight:bold " />
+        </p:column>
+  
+ 
+        <p:column headerText="Ação">
+           <p:commandButton icon="fa fa-cart-plus" title="adicionar" 
+           actionListener="#{orcamentoBean.adicionarProduto}"
+           update="mensagem :formCentral:tabItensServicos :formValores:painelValores"
+           style="color:#ffffff; background:#006699"  >
+            <f:attribute  name="produtoSelecionado" value="#{produtos}"/>
+             
+           </p:commandButton>
+        </p:column>
+ 
+        <f:facet name="paginatorTopLeft">
+            <p:commandButton type="button" icon="pi pi-refresh" />
+        </f:facet>
+ 
+        <f:facet name="paginatorBottomRight">
+            <p:commandButton type="button" icon="pi pi-cloud-upload" />
+        </f:facet>
+ 
+    </p:dataTable>
+        
+         </h:form>
+          
+        <h:panelGrid columns="2">							
+        <p:commandButton value="Sair" 
+	     icon="fa fa-arrow-circle-right"
+         onclick="PF('adicionarProdutosDL').hide()" 
+         style="height:30px;width:150px; text-align:center;position: relative;left: 1280px; color:#ffffff; background:#ff0000 " />																		
+        
+        </h:panelGrid>
+        
+     </h:form>
+   </p:dialog>
+   
+    <p:dialog header="Código de Barras" closable="true" draggable="false"
+      modal="true" visible="false" widgetVar="codigoBarrasDL">
+       <h:form id="formProdutoDL">
+        <hr></hr>
+          <h:panelGrid id="grid2" columns="10" cellpadding="2">
+          <p:outputLabel  value="Cód Barras: " />
+          <p:inputText id="CodBarras" value="#{orcamentoBean.produtoB.barras}" 
+            size="30"  />
+            <h:commandButton actionListener="#{orcamentoBean.adicionarProdutoBarras}" 
+            >
+            <f:actionListener type="org.omnifaces.eventlistener.ResetInputAjaxActionListener"/>
+            </h:commandButton>
+         </h:panelGrid>
+        </h:form>
+     </p:dialog>
+     
+ </h:body> 
+ 
+</html>
